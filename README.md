@@ -90,6 +90,35 @@ This optional setting let's you define the webview url which is opened when you 
 This optional setting let's you configure the timeout in minutes the device needs to be in the background or inactive, to set a new session id.
 
 #### launchTimeoutInMinutes: Int (optional)
-The test app includes automatic tracking of Installs and Launches. This optional setting let's you configure the timeout in minutes the device needs to be in the background or inactive, to send a new launch event. When the App is launched initially a "first_launch" event is tracked. For every launch after the "launchTimeoutInMinutes" a "launch" event is tracked.
+The test app includes automatic tracking of Installs and Launches. This optional setting let's you configure the timeout in minutes the device needs to be in the background or inactive, to send a new launch event. When the App is launched initially, a "first_launch" event is tracked. For every launch after the "launchTimeoutInMinutes" a "launch" event is tracked.
 
 ### Tracker Methods
+### trackEvent(eventName: String, eventType: EventType, eventData: Map<String, Any>)
+This method can be used to track an event. If the initialize() method had not been called yet, the event is added to a queue.
+
+Possible event types are:
+VIEW
+LIFECYCLE
+CALLBACK
+ERROR
+GENERIC_ACTION
+IMPRESSION
+NON_INTERACTION
+
+#### initialize()
+This method should be called once the tracker had been configured and you want to start the data collection. In case events had been tracked before the initialization, the event queue is processed.
+
+#### setGlobalEventData(data: Map<String, Any>)
+This method can be used to set event data which should be present in every event including the Install and Launch tracking.
+
+#### setGtmServerPreviewHeader(value: String?)
+This method can be used to set the X-Gtm-Server-Preview HTTP header value from the Server Side Google Tag Manager Preview Mode.
+
+#### setDeviceIdCookieName(name: String?)
+This method can be used to set the device id cookie name you are using in JSON Client to persist the device information which is then populated as client_id in the event data.
+
+#### setSessionIdCookieName(name: String?)
+This method can be used to set the session id cookie name you are using in JSON Client to persist the session information which is then populated as session_id in the event data.
+
+#### setWebviewUrl(url: String)
+This method can be used to set the webview url which is opened when you navigate to the webview tab in the Test App. It can be used to test how the device and session ids are passed to the webview to keep using the same ids in the webview tracking.
