@@ -4,7 +4,7 @@ This is a Test App to showcase how [JSON Tag](https://github.com/floriangoetting
 
 The JSON Client receives JSON Payloads and makes the data available in the Event Data. The built-in ID Service creates long lasting server-side set (HTTP-Only) cookies for visitor identification.
 
-For a detailed guide please check the [Blogpost about JSON Tag & JSON Client](https://www.floriangoetting.de/en/json-tag-json-client-a-flexible-first-party-tracking-solution-for-ssgtm/?utm_source=github&utm_medium=social&utm_campaign=ssgtm-json-tag-json-client-first-party-tracking&utm_content=json-client-repo).
+For a detailed guide please check the [Blogpost about JSON Tag & JSON Client](https://www.floriangoetting.de/en/json-tag-json-client-a-flexible-first-party-tracking-solution-for-ssgtm/?utm_source=github&utm_medium=social&utm_campaign=ssgtm-json-tag-json-client-first-party-tracking&utm_content=json-tag-test-app-android-repo).
 
 Please note that this is just a simple sample App and is not meant to be used in production. However it should be a good starting point to get an idea how JSON Tag can be used with a Native App and could help App Developers in the initial implementation. As I am not an Android Developer, the code can be optimized further for sure :P
 
