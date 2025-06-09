@@ -97,13 +97,13 @@ The test app includes automatic tracking of Installs and Launches. This optional
 This method can be used to track an event. If the initialize() method had not been called yet, the event is added to a queue.
 
 Possible event types are:
-VIEW
-LIFECYCLE
-CALLBACK
-ERROR
-GENERIC_ACTION
-IMPRESSION
-NON_INTERACTION
+- VIEW
+- LIFECYCLE
+- CALLBACK
+- ERROR
+- GENERIC_ACTION
+- IMPRESSION
+- NON_INTERACTION
 
 #### initialize()
 This method should be called once the tracker had been configured and you want to start the data collection. In case events had been tracked before the initialization, the event queue is processed.
