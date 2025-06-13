@@ -241,6 +241,14 @@ class Tracker(
             for ((key, value) in combinedData) {
                 put(key, mapToJsonValue(value))
             }
+
+            // Optional: only add if not empty
+            if (deviceId.isNotEmpty()) {
+                put("client_id", deviceId)
+            }
+            if (sessionId.isNotEmpty()) {
+                put("session_id", sessionId)
+            }
         }
 
         Log.d("Tracker", "Request json: ${json}")
@@ -251,21 +259,6 @@ class Tracker(
             .url(url)
             .post(requestBody)
             .addHeader("Content-Type", "application/json")
-
-        val cookies = mutableListOf<String>()
-
-        if (deviceId.isNotEmpty()) {
-            cookies += "$deviceIdCookieName=$deviceId"
-        }
-
-        if (sessionId.isNotEmpty()) {
-            cookies += "$sessionIdCookieName=$sessionId"
-        }
-
-        if (cookies.isNotEmpty()) {
-            val cookieHeader = cookies.joinToString("; ")
-            requestBuilder.addHeader("Cookie", cookieHeader)
-        }
 
         gtmServerPreviewHeader?.let {
             requestBuilder.addHeader("X-Gtm-Server-Preview", it)
