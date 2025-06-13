@@ -78,10 +78,10 @@ Endpoint is a mandatory setting and needs to point to the path which is configur
 This optional setting let's you set the X-Gtm-Server-Preview HTTP header value from the Server Side Google Tag Manager Preview Mode. See the section above for more details. This value changes in every ssGTM Debug Session and needs to be updated for every test.
 
 #### deviceIdCookieName: String (optional)
-This optional setting let's you define the device id cookie name you are using in JSON Client to persist the device information which is then populated as client_id in the event data. If no value is specified the default value "fp_device_id" is used.
+This optional setting let's you define the device id cookie name you are using in JSON Client which is used to inject the device id cookie in the webview. If no value is specified the default value "fp_device_id" is used.
 
 #### sessionIdCookieName: String (optional)
-This optional setting let's you define the session id cookie name you are using in JSON Client to persist the session information which is then populated as client_id in the event data. If no value is specified the default value "fp_session_id" is used.
+This optional setting let's you define the session id cookie name you are using in JSON Client which is used to inject the session id cookie in the webview. If no value is specified the default value "fp_session_id" is used.
 
 #### webviewUrl: String (optional)
 This optional setting let's you define the webview url which is opened when you navigate to the webview tab in the Test App. It can be used to test how the device and session ids are passed to the webview to keep using the same ids in the webview tracking.
@@ -115,10 +115,10 @@ This method can be used to set event data which should be present in every event
 This method can be used to set the X-Gtm-Server-Preview HTTP header value from the Server Side Google Tag Manager Preview Mode.
 
 #### setDeviceIdCookieName(name: String?)
-This method can be used to set the device id cookie name you are using in JSON Client to persist the device information which is then populated as client_id in the event data.
+This method can be used to set the device id cookie name you are using in JSON Client which is used to inject the device id cookie in the webview.
 
 #### setSessionIdCookieName(name: String?)
-This method can be used to set the session id cookie name you are using in JSON Client to persist the session information which is then populated as session_id in the event data.
+This method can be used to set the session id cookie name you are using in JSON Client which is used to inject the session id cookie in the webview.
 
 #### setWebviewUrl(url: String)
 This method can be used to set the webview url which is opened when you navigate to the webview tab in the Test App. It can be used to test how the device and session ids are passed to the webview to keep using the same ids in the webview tracking.
