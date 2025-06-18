@@ -128,7 +128,7 @@ class MainActivity : AppCompatActivity() {
         // tracker config
         val sstEndpoint = "https://sst.floriangoetting.de"
 
-        tracker = Tracker(this, sstEndpoint, "/data", sessionTimeoutInMinutes = 30, launchTimeoutMinutes = 5)
+        tracker = Tracker(this, sstEndpoint, "/data", sessionTimeoutInMinutes = 30)
         val globalEventData = mapOf(
             "app" to appData,
             "device" to deviceData,

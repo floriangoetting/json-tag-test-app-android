@@ -2,13 +2,7 @@ package com.floriangoetting.jsontagtestapp
 
 import android.content.Context
 import android.content.SharedPreferences
-import android.content.pm.PackageManager
-import android.os.Handler
-import android.os.Looper
 import android.util.Log
-import androidx.lifecycle.DefaultLifecycleObserver
-import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.ProcessLifecycleOwner
 import com.google.common.net.InternetDomainName
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
@@ -18,9 +12,6 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONObject
 import java.io.IOException
 import java.net.URI
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 
 class Tracker(
     private val context: Context,
@@ -30,8 +21,8 @@ class Tracker(
     private var deviceIdCookieName: String = "fp_device_id",
     private var sessionIdCookieName: String = "fp_session_id",
     private var webviewUrl: String? = null,
-    private val sessionTimeoutInMinutes: Int = 30,
-    private val launchTimeoutMinutes: Int = 5) : DefaultLifecycleObserver {
+    private val sessionTimeoutInMinutes: Int = 30
+) {
 
     private val client = OkHttpClient.Builder()
         .protocols(listOf(Protocol.HTTP_2, Protocol.HTTP_1_1)) // HTTP/2 preferred
@@ -53,78 +44,11 @@ class Tracker(
     fun initialize() {
         Log.d("Tracker", "🔄 Initialisation started...")
 
-        // Check whether it is the first launch and ensure that the event is only tracked on the first launch
-        trackFirstInstall {
-            isInitialized = true
-            Log.d("Tracker", "✅ Tracker initialized!")
+        isInitialized = true
+        Log.d("Tracker", "✅ Tracker initialized!")
 
-            // Process event queue if events are in the queue
-            processQueuedEvents()
-
-            // Start lifecycle tracking for launch events on the main thread
-            Handler(Looper.getMainLooper()).post {
-                ProcessLifecycleOwner.get().lifecycle.addObserver(this)
-            }
-        }
-
-    }
-
-    override fun onStart(owner: LifecycleOwner) {
-        super.onStart(owner)
-        Log.d("Tracker", "📲 App is in Foreground")
-        // Here we check whether the app was in the background for longer than the specified timeout time
-        if (!isFirstLaunch()) {
-            checkAndTrackLaunch() // Only execute if the timeout has been exceeded
-        }
-        //disable first launch flag
-        val prefs: SharedPreferences = context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
-        prefs.edit().putBoolean("is_first_launch", false).apply()
-        //set launch time
-        val currentTime = System.currentTimeMillis()
-        sharedPreferences.edit().putLong("last_launch_time", currentTime).apply() // Set the new launch time
-    }
-
-    private fun hasLaunchTimeoutPassed(): Boolean {
-        val lastLaunchTime = sharedPreferences.getLong("last_launch_time", 0)
-        val currentTime = System.currentTimeMillis()
-        val launchTimeout = launchTimeoutMinutes * 60 * 1000L
-
-        // Check whether the app was in the background for longer than the defined timeout
-        return currentTime - lastLaunchTime > launchTimeout
-    }
-
-    private fun checkAndTrackLaunch() {
-        val currentTime = System.currentTimeMillis()
-        //Launch counter
-        val launchCounter = sharedPreferences.getInt("launch_counter", 1)
-        val newLaunchCounter = launchCounter + 1
-        sharedPreferences.edit().putInt("launch_counter", newLaunchCounter).apply()
-        //days since first use
-        val installDate = getInstallDate()
-        val daysSinceFirstUse = (currentTime - installDate) / (1000 * 60 * 60 * 24)
-        //days since last use
-        val lastLaunchTime = sharedPreferences.getLong("last_launch_time", 0L)
-        val daysSinceLastUse = if (lastLaunchTime != 0L) {
-            (currentTime - lastLaunchTime) / (1000 * 60 * 60 * 24)
-        } else {
-            0L // If there is no last launch, set 0
-        }
-
-        // If the app was in the background for longer than the launch timeout
-        if (hasLaunchTimeoutPassed()) {
-            Log.d("Tracker", "🚀 Launch-Event was tracked after timeout of $launchTimeoutMinutes minutes.")
-            val launchData = mapOf(
-                "launch" to mapOf(
-                    "number" to newLaunchCounter,
-                    "days_since_first_use" to daysSinceFirstUse,
-                    "days_since_last_use" to daysSinceLastUse
-                )
-            )
-            trackEvent("launch", EventType.LIFECYCLE, launchData)
-            sharedPreferences.edit().putLong("last_launch_time", currentTime).apply() // Set the new launch time
-        } else {
-            Log.d("Tracker", "🕒 Launch event not tracked - timeout not exceeded.")
-        }
+        // Process event queue if events are in the queue
+        processQueuedEvents()
     }
 
     private fun processQueuedEvents() {
@@ -199,7 +123,6 @@ class Tracker(
 
     enum class EventType(val value: String) {
         VIEW("view"),
-        LIFECYCLE("lifecycle"),
         CALLBACK("callback"),
         ERROR("error"),
         GENERIC_ACTION("generic action"),
@@ -327,45 +250,6 @@ class Tracker(
             }
         }
         return jsonObject
-    }
-
-    private fun getInstallDate(): Long {
-        return try {
-            val packageInfo = context.packageManager.getPackageInfo(context.packageName, 0)
-            packageInfo.firstInstallTime // Time in milliseconds since January 1, 1970
-        } catch (e: PackageManager.NameNotFoundException) {
-            e.printStackTrace()
-            0L
-        }
-    }
-
-    private fun formatDate(timeMillis: Long): String {
-        val date = Date(timeMillis)
-        val formatter = SimpleDateFormat("M/d/yyyy", Locale.getDefault())
-        return formatter.format(date)
-    }
-
-    // Checks whether it is the first start of the app
-    private fun isFirstLaunch(): Boolean {
-        val prefs: SharedPreferences = context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
-        return prefs.getBoolean("is_first_launch", true)
-    }
-
-    private fun trackFirstInstall(onComplete: () -> Unit) {
-        if (isFirstLaunch()) {
-            val launchData = mapOf(
-                "launch" to mapOf(
-                    "install_date" to formatDate(getInstallDate()),
-                    "number" to 1
-                )
-            )
-
-            sendEvent("first_launch", launchData) {
-                onComplete() // Callback after successful sending
-            }
-        } else {
-            onComplete()
-        }
     }
 
     /** Extracts the device_id from the response */
