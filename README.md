@@ -48,7 +48,7 @@ Example:
  // tracker config
 val sstEndpoint = "https://sst.floriangoetting.de"
 
-tracker = Tracker(this, sstEndpoint, "/data", sessionTimeoutInMinutes = 30, launchTimeoutMinutes = 5)
+tracker = Tracker(this, sstEndpoint, "/data", sessionTimeoutInMinutes = 30)
 val globalEventData = mapOf(
     "app" to appData,
     "device" to deviceData,
@@ -89,16 +89,12 @@ This optional setting let's you define the webview url which is opened when you 
 #### sessionTimeoutInMinutes: Int (optional)
 This optional setting let's you configure the timeout in minutes the device needs to be in the background or inactive, to set a new session id.
 
-#### launchTimeoutInMinutes: Int (optional)
-The test app includes automatic tracking of Installs and Launches. This optional setting let's you configure the timeout in minutes the device needs to be in the background or inactive, to send a new launch event. When the App is launched initially, a "first_launch" event is tracked. For every launch after the "launchTimeoutInMinutes" a "launch" event is tracked.
-
 ### Tracker Methods
 ### trackEvent(eventName: String, eventType: EventType, eventData: Map<String, Any>)
 This method can be used to track an event. If the initialize() method had not been called yet, the event is added to a queue.
 
 Possible event types are:
 - VIEW
-- LIFECYCLE
 - CALLBACK
 - ERROR
 - GENERIC_ACTION
