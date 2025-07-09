@@ -58,8 +58,8 @@ val globalEventData = mapOf(
 tracker.setGlobalEventData(globalEventData)
 tracker.setDeviceIdCookieName("fgId")
 tracker.setSessionIdCookieName("web_session_id")
-tracker.setGtmServerPreviewHeader("ZW52LTN8ZkNTSWNWLUttdzUwTGtzSVg1UlZBZ3wxOTdmMDI3YzZhM2RiYTVkNDY4MDQ=")
-tracker.setGtmServerPreviewHeaderWebviewCookieName("xgtmsp")
+//tracker.setGtmServerPreviewHeader("ZW52LTN8ZkNTSWNWLUttdzUwTGtzSVg1UlZBZ3wxOTdmMDI3YzZhM2RiYTVkNDY4MDQ=")
+//tracker.setGtmServerPreviewHeaderWebviewCookieName("xgtmsp")
 tracker.setWebviewUrl("https://www.floriangoetting.de/en/blogposts/")
 tracker.initialize()
 // end of tracker config
