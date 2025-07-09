@@ -41,6 +41,8 @@ class WebviewFragment : BaseFragment() {
         val deviceIdCookieName = tracker?.getDeviceIdCookieName()
         val sessionId = tracker?.getSessionId() ?: ""
         val sessionIdCookieName = tracker?.getSessionIdCookieName()
+        val xGtmServerPreviewToken = tracker?.getGtmServerPreviewHeader()
+        val xGtmServerPreviewCookieName = tracker?.getGtmServerPreviewHeaderWebviewCookieName()
 
         val webviewUrl = tracker?.getWebviewUrl().takeIf { !it.isNullOrBlank() } ?: "https://example.com"
         val cookieDomain = tracker?.getRootDomain(webviewUrl)
@@ -56,6 +58,11 @@ class WebviewFragment : BaseFragment() {
         if (sessionId.isNotEmpty()) {
             val sessionIdCookie = "$sessionIdCookieName=$sessionId; path=/; domain=$cookieDomain"
             cookieManager.setCookie(webviewUrl, sessionIdCookie)
+        }
+
+        if(!xGtmServerPreviewToken.isNullOrEmpty() && !xGtmServerPreviewCookieName.isNullOrEmpty()){
+            val xGtmServerPreviewTokenCookie = "$xGtmServerPreviewCookieName=$xGtmServerPreviewToken; path=/; domain=$cookieDomain"
+            cookieManager.setCookie(webviewUrl, xGtmServerPreviewTokenCookie)
         }
 
         cookieManager.flush()

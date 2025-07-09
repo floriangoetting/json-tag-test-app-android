@@ -18,6 +18,7 @@ class Tracker(
     private val endpoint: String,
     private val path: String,
     private var gtmServerPreviewHeader: String? = null,
+    private var gtmServerPreviewHeaderWebviewCookieName: String? = null,
     private var deviceIdCookieName: String = "fp_device_id",
     private var sessionIdCookieName: String = "fp_session_id",
     private var webviewUrl: String? = null,
@@ -64,6 +65,18 @@ class Tracker(
 
     fun setGtmServerPreviewHeader(value: String?) {
         gtmServerPreviewHeader = value
+    }
+
+    fun getGtmServerPreviewHeader(): String? {
+        return gtmServerPreviewHeader
+    }
+
+    fun setGtmServerPreviewHeaderWebviewCookieName(value: String?) {
+        gtmServerPreviewHeaderWebviewCookieName = value
+    }
+
+    fun getGtmServerPreviewHeaderWebviewCookieName(): String? {
+        return gtmServerPreviewHeaderWebviewCookieName
     }
 
     fun setDeviceIdCookieName(name: String) {
