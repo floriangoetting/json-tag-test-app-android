@@ -26,17 +26,17 @@ To enable the ssGTM Preview Mode, follow these steps:
 4. Go to the tracker configuration in Android Studio in the MainActivity.kt file (app/src/main/java/com/floriangoetting/jsontagtestapp/MainActivity.kt), uncomment the "tracker.setGtmServerPreviewHeader" option and update the gtm server preview header value with the one you copied in step 3
 5. Run the App again to trigger a new Build and check the ssGTM Preview Mode to see the tracking requests
 
-### Debug Webview App Requests using Charles Proxy and ssGTM Preview Mode
-Unfortunately this method only works for the native Tracking calls but not for Tracking Calls which are happening in the App Webviews. If you want to see the App Webview Tracking calls in the ssGTM preview mode as well, an option would be to use a Network Proxy like the charles proxy to add the X-Gtm-Server-Preview HTTP header dynamically to the tracking calls. If this method is used, it is not required to use the tracker configuration for the server preview header.
+### Debug Webview App Requests using the configuration Option and ssGTM Preview Mode
+It is also possible to debug Webview App Requests using the configuration option mentioned above. As a prerequisite it is required to configure JSON Tag in the Webview to set the x-gtm-server-preview header dynamically based on a cookie with the name of your choice.
 
-To enable the dynamic addition of the X-Gtm-Server-Preview HTTP header in Charles proxy follow these steps:
-1. Install and configure Charles proxy to proxy the requests from your test device: https://www.charlesproxy.com/download/latest-release/
-2. Add a new rewrite Rule in Charles Proxy under Tools -> Rewrite -> Add
-3. Add a new location with the host and path of your tracking calls which are sent to your server side GTM Instance
-4. Add a rule action and select "Add header" as type
-5. Leave the match section empty and under replace set "X-Gtm-Server-Preview" as Name and your X-Gtm-Server-Preview HTTP header value (copied from the ssGTM Preview Mode) as the value
-6. Save the rule and make sure that rewrites are enabled
-7. Trigger tracking calls again and check the ssGTM Preview Mode to see the tracking requests
+To make it work, just follow these steps:
+1. Make sure that JSON Client on your ssGTM is updated to the most recent version and is published.
+2. Create a first party cookie variable in client side GTM with the name of your choice. For example "xgtmsp".
+3. Open your JSON Tag Settings Variable and select the cookie variable in the "X-Gtm-Server-Preview Token" Field which you find in the Debugging Settings.
+4. Do a test and create the cookie manually in your browser with a valid X-Gtm-Server-Preview value. Make sure that the header is added to the JSON Tag requests and is properly received by the server. If everything is fine publish the client side GTM container.
+5. Go to the tracker configuration in Android Studio in the MainActivity.kt file (app/src/main/java/com/floriangoetting/jsontagtestapp/MainActivity.kt), uncomment the "tracker.setGtmServerPreviewHeader" option and update the gtm server preview header value.
+6. Uncomment the "tracker.setGtmServerPreviewHeaderWebviewCookieName" as well and make sure the same cookie name as in your client side GTM is used here.
+7. Run the App again to trigger a new Build and check the ssGTM Preview Mode to see the tracking requests you tiggered in the App Webview
 
 ## Usage and Configuration Options
 The tracker class is used to configure the tracking, building the tracking calls handling a queue and more. To create a new tracker instance, the application context, the sstEndpoint and the JSON Client path need to be set. The other settings can be set either directly in the constructor or using set Methods.
@@ -58,7 +58,8 @@ val globalEventData = mapOf(
 tracker.setGlobalEventData(globalEventData)
 tracker.setDeviceIdCookieName("fgId")
 tracker.setSessionIdCookieName("web_session_id")
-//tracker.setGtmServerPreviewHeader("ZW52LTN8ZkNTSWNWLUttdzUwTGtzSVg1UlZBZ3wxOTcyYzI3NmMxOTNmNzIyM2M1YWY=")
+tracker.setGtmServerPreviewHeader("ZW52LTN8ZkNTSWNWLUttdzUwTGtzSVg1UlZBZ3wxOTdmMDI3YzZhM2RiYTVkNDY4MDQ=")
+tracker.setGtmServerPreviewHeaderWebviewCookieName("xgtmsp")
 tracker.setWebviewUrl("https://www.floriangoetting.de/en/blogposts/")
 tracker.initialize()
 // end of tracker config
@@ -109,6 +110,9 @@ This method can be used to set event data which should be present in every event
 
 #### setGtmServerPreviewHeader(value: String?)
 This method can be used to set the X-Gtm-Server-Preview HTTP header value from the Server Side Google Tag Manager Preview Mode.
+
+#### setGtmServerPreviewHeaderWebviewCookieName(value: String?)
+This method can be used to set the X-Gtm-Server-Preview cookie name which should be used to inject the header into the webview.
 
 #### setDeviceIdCookieName(name: String?)
 This method can be used to set the device id cookie name you are using in JSON Client which is used to inject the device id cookie in the webview.
