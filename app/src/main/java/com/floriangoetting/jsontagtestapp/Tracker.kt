@@ -2,6 +2,7 @@ package com.floriangoetting.jsontagtestapp
 
 import android.content.Context
 import android.content.SharedPreferences
+import android.os.Build
 import android.util.Log
 import com.google.common.net.InternetDomainName
 import okhttp3.MediaType.Companion.toMediaType
@@ -12,6 +13,7 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONObject
 import java.io.IOException
 import java.net.URI
+import java.util.Locale
 
 class Tracker(
     private val context: Context,
@@ -128,10 +130,12 @@ class Tracker(
 
     //set your own user agent
     private fun getCustomUserAgent(): String {
-        val appVersion = context.packageManager.getPackageInfo(context.packageName, 0).versionName
-        val osVersion = android.os.Build.VERSION.RELEASE
-        val deviceModel = android.os.Build.MODEL
-        return "Json Tag Test App/$appVersion (Android $osVersion; $deviceModel)"
+        val androidVersion = Build.VERSION.RELEASE ?: "Android"
+        val model = Build.MODEL ?: "Generic"
+        val buildId = Build.ID ?: "Build"
+        val locale = Locale.getDefault().toLanguageTag()
+
+        return "Mozilla/5.0 (Linux; U; Android $androidVersion; $locale; $model Build/$buildId)"
     }
 
     enum class EventType(val value: String) {
