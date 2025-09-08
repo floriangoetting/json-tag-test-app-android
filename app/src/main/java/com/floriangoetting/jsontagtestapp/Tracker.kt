@@ -2,6 +2,7 @@ package com.floriangoetting.jsontagtestapp
 
 import android.content.Context
 import android.content.SharedPreferences
+import android.content.pm.PackageManager
 import android.os.Build
 import android.util.Log
 import com.google.common.net.InternetDomainName
@@ -13,6 +14,8 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONObject
 import java.io.IOException
 import java.net.URI
+import java.text.SimpleDateFormat
+import java.util.Date
 import java.util.Locale
 
 class Tracker(
@@ -47,11 +50,65 @@ class Tracker(
     fun initialize() {
         Log.d("Tracker", "🔄 Initialisation started...")
 
+        // Check whether it is the first launch and ensure that the event is only tracked on the first launch
+        trackFirstLaunch {
+            isInitialized = true
+            Log.d("Tracker", "✅ Tracker initialized!")
+
+            // Process event queue if events are in the queue
+            processQueuedEvents()
+
+            // reset first launch flag
+            val prefs: SharedPreferences = context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
+            prefs.edit().putBoolean("is_first_launch", false).apply()
+        }
+
         isInitialized = true
         Log.d("Tracker", "✅ Tracker initialized!")
 
         // Process event queue if events are in the queue
         processQueuedEvents()
+    }
+
+    // Checks whether it is the first start of the app
+    private fun isFirstLaunch(): Boolean {
+        val prefs: SharedPreferences = context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
+        return prefs.getBoolean("is_first_launch", true)
+    }
+
+    private fun getInstallDate(): Long {
+        return try {
+            val packageInfo = context.packageManager.getPackageInfo(context.packageName, 0)
+            packageInfo.firstInstallTime // Time in milliseconds since January 1, 1970
+        } catch (e: PackageManager.NameNotFoundException) {
+            e.printStackTrace()
+            0L
+        }
+    }
+
+    private fun formatDate(timeMillis: Long): String {
+        val date = Date(timeMillis)
+        val formatter = SimpleDateFormat("M/d/yyyy", Locale.getDefault())
+        return formatter.format(date)
+    }
+
+    private fun trackFirstLaunch(onComplete: () -> Unit) {
+        if (isFirstLaunch()) {
+            val eventData = mapOf(
+                "event_type" to "lifecycle",
+                "user" to mapOf(
+                    "app" to mapOf(
+                        "first_launch_date" to formatDate(getInstallDate()),
+                    )
+                )
+            )
+
+            sendEvent("first_launch", eventData) {
+                onComplete() // Callback after successful sending
+            }
+        } else {
+            onComplete()
+        }
     }
 
     private fun processQueuedEvents() {
@@ -138,8 +195,33 @@ class Tracker(
         return "Mozilla/5.0 (Linux; U; Android $androidVersion; $locale; $model Build/$buildId)"
     }
 
+    /**
+     * Recursively merges two maps.
+     * - If a key exists in both maps and the values are maps -> merge them recursively
+     * - Otherwise, eventData overwrites globalData
+     */
+    private fun deepMerge(globalData: Map<String, Any>, eventData: Map<String, Any>): Map<String, Any> {
+        val merged = globalData.toMutableMap()
+
+        for ((key, value) in eventData) {
+            val existingValue = merged[key]
+            if (existingValue is Map<*, *> && value is Map<*, *>) {
+                @Suppress("UNCHECKED_CAST")
+                merged[key] = deepMerge(
+                    existingValue as Map<String, Any>,
+                    value as Map<String, Any>
+                )
+            } else {
+                merged[key] = value ?: JSONObject.NULL
+            }
+        }
+
+        return merged
+    }
+
     enum class EventType(val value: String) {
         VIEW("view"),
+        LIFECYCLE("lifecycle"),
         CALLBACK("callback"),
         ERROR("error"),
         GENERIC_ACTION("generic action"),
@@ -170,12 +252,12 @@ class Tracker(
 
         val url = "$endpoint$path"
 
-        // Combine local event data with global data
-        val combinedData = globalEventData + eventData
+        // Deep merge globalEventData and eventData
+        val combinedData = deepMerge(globalEventData, eventData)
 
         val json = JSONObject().apply {
             put("event_name", eventName)
-            put("jsontag", "android app")
+            put("jsontag", "android_app")
             //put("timestamp", System.currentTimeMillis())
             //add event data
             for ((key, value) in combinedData) {
